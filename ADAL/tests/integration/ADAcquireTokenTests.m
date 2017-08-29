@@ -810,6 +810,35 @@ const int sAsyncContextTimeout = 10;
     XCTAssertEqualObjects(mrrtItem.refreshToken, @"new refresh token");
 }
 
+- (void)testAcquireTokenSilent_whenExpiredATRefreshMRRTNetworkNoReponse_shouldFail
+{
+    ADAuthenticationError* error = nil;
+    ADAuthenticationContext* context = [self getTestAuthenticationContext];
+    XCTestExpectation *expectation = [self expectationWithDescription:@"acquireTokenSilentWithResource"];
+    
+    // Add a expired access token with refresh token to the cache
+    ADTokenCacheItem* item = [self adCreateATCacheItem];
+    item.expiresOn = [NSDate date];
+    [context.tokenCacheStore.dataSource addOrUpdateItem:item correlationId:nil error:&error];
+    XCTAssertNil(error);
+    
+    // Add an MRRT to the cache as well
+    [context.tokenCacheStore.dataSource addOrUpdateItem:[self adCreateMRRTCacheItem] correlationId:nil error:&error];
+    XCTAssertNil(error);
+    
+    [context acquireTokenSilentWithResource:TEST_RESOURCE
+                                   clientId:TEST_CLIENT_ID
+                                redirectUri:TEST_REDIRECT_URL
+                                     userId:TEST_USER_ID
+                            completionBlock:^(ADAuthenticationResult *result)
+     {
+         XCTAssertNotNil(result);
+         [expectation fulfill];
+     }];
+    
+    [self waitForExpectations:@[expectation] timeout:1];
+}
+
 - (void)testAcquireTokenSilent_whenRedeemingMRRT_withNSNumbersInParsedJSON
 {
     ADAuthenticationError* error = nil;
