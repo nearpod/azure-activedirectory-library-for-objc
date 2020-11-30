@@ -27,7 +27,8 @@
 #if TARGET_OS_IPHONE
 //iOS:
 #   include <UIKit/UIKit.h>
-typedef UIWebView WebViewType;
+#   include <WebKit/WebKit.h>
+typedef WKWebView WebViewType;
 #else
 //OS X:
 #   include <WebKit/WebKit.h>
@@ -167,7 +168,7 @@ typedef void(^ADAuthenticationCallback)(ADAuthenticationResult* result);
 
 /*! Follows the OAuth2 protocol (RFC 6749). The function will first look at the cache and automatically check for token
  expiration. Additionally, if no suitable access token is found in the cache, but refresh token is available,
- the function will use the refresh token automatically. If neither of these attempts succeeds, the method will use the provided assertion to get an 
+ the function will use the refresh token automatically. If neither of these attempts succeeds, the method will use the provided assertion to get an
  access token from the service.
  
  @param samlAssertion: the assertion representing the authenticated user.
